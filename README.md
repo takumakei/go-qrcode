@@ -56,10 +56,16 @@ qrcode -- QR Code encoder in Go
 https://github.com/skip2/go-qrcode
 
 Flags:
+  -i    invert black and white
   -o string
         out PNG file prefix, empty for stdout
+  -p string
+        structured append mode. 'current/last:parity' e.g. '2/3:0x11'
+        current and last must be 1 to 16.
+        parity can be decimal or hex (with 0x prefix), 0 to 255.
   -s int
         image size (pixel) (default 256)
+  -t    print as text-art on stdout
 
 Usage:
   1. Arguments except for flags are joined by " " and used to generate QR code.
