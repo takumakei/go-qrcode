@@ -150,6 +150,16 @@ type QRCode struct {
 //
 // An error occurs if the content is too long.
 func New(content string, level RecoveryLevel) (*QRCode, error) {
+	return NewWithPage(content, level, nil)
+}
+
+// NewWithPage constructs a QRCode.
+//
+//	var q *qrcode.QRCode
+//	q, err := qrcode.New("my content", qrcode.Medium)
+//
+// An error occurs if the content is too long.
+func NewWithPage(content string, level RecoveryLevel, page *Page) (*QRCode, error) {
 	encoders := []dataEncoderType{dataEncoderType1To9, dataEncoderType10To26,
 		dataEncoderType27To40}
 
@@ -160,7 +170,7 @@ func New(content string, level RecoveryLevel) (*QRCode, error) {
 
 	for _, t := range encoders {
 		encoder = newDataEncoder(t)
-		encoded, err = encoder.encode([]byte(content))
+		encoded, err = encoder.encodeWithPage([]byte(content), page)
 
 		if err != nil {
 			continue

@@ -88,6 +88,13 @@ type segment struct {
 	data []byte
 }
 
+// Page represents structured append
+type Page struct {
+	Current byte // 0-15
+	Last    byte // 0-15
+	Parity  byte // 0-255
+}
+
 // A dataEncoder encodes data for a particular QR Code version.
 type dataEncoder struct {
 	// Minimum & maximum versions supported.
@@ -163,6 +170,13 @@ func newDataEncoder(t dataEncoderType) *dataEncoder {
 //
 // The returned data does not include the terminator bit sequence.
 func (d *dataEncoder) encode(data []byte) (*bitset.Bitset, error) {
+	return d.encodeWithPage(data, nil)
+}
+
+// encode data as one or more segments and return the encoded data.
+//
+// The returned data does not include the terminator bit sequence.
+func (d *dataEncoder) encodeWithPage(data []byte, page *Page) (*bitset.Bitset, error) {
 	d.data = data
 	d.actual = nil
 	d.optimised = nil
@@ -182,6 +196,14 @@ func (d *dataEncoder) encode(data []byte) (*bitset.Bitset, error) {
 
 	// Encode data.
 	encoded := bitset.New()
+
+	if page != nil {
+		encoded.AppendByte(3, 4)            // magic number
+		encoded.AppendByte(page.Current, 4) // current page
+		encoded.AppendByte(page.Last, 4)    // last page
+		encoded.AppendByte(page.Parity, 8)  // parity
+	}
+
 	for _, s := range d.optimised {
 		d.encodeDataRaw(s.data, s.dataMode, encoded)
 	}
